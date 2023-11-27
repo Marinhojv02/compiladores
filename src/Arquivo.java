@@ -1,4 +1,4 @@
-//classe para realizar a leitura do arquivo de texto, caminho e conte�do do arquivo a ser lido, ou seja o caminho e o conte�do do codigoTeste.txt
+package src;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;

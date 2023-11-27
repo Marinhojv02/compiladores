@@ -1,4 +1,4 @@
-//const a = require("asdawd")
+const a = require("asdawd")
 
 import teste from asdw
 
@@ -17,7 +17,7 @@ function a(){
 async function a(){
     return a;
 }
-
+await lalal(); 
 while(a < 2){
     a = 1
 }

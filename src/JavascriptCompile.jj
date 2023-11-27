@@ -8,12 +8,14 @@ options {
 
 PARSER_BEGIN(JavaScriptCompiler)
 
+package src;
+
 import java.io.*;
 
 public class JavaScriptCompiler {
     public static void main(String[] args) {
 		  try {
-        String programa = Arquivo.Read("codigoTeste.txt");
+        String programa = Arquivo.Read("codigoFonte.js");
         new JavaScriptCompiler(new java.io.StringReader(programa)).RUN();
         System.out.println("\n\nA Sintaxe Correta. Compilado com Sucesso!.");
       }catch(Throwable e) {
@@ -132,11 +134,11 @@ void AtribuirVariavel(): {} {
 
 // IMPORT
 void importDeclaration():{} {
-  <IMPORT> <IDENTIFICADOR> <FROM> <STRING_LITERAL> (<SEMI_COLON>)?
+  <IMPORT> <IDENTIFICADOR> <FROM> (<TIPOS_BASICOS> | <IDENTIFICADOR> ) (<SEMI_COLON>)?
 }
 
 void require():{} {
-  <REQUIRE> <L_PAREN> (<STRING_LITERAL> | <IDENTIFICADOR>) <R_PAREN>
+  <REQUIRE> <L_PAREN> (<TIPOS_BASICOS> | <IDENTIFICADOR> ) <R_PAREN> (<SEMI_COLON>)?
 }
 
 void expressaoNumericaComAtribuicao(): {} { (<MAIS_IGUAL>  | <MENOS_IGUAL>  | <ASTERISCO_IGUAL>  | <BARRA_IGUAL> |  <PORCENTO_IGUAL>) (<NUMBER> | <IDENTIFICADOR>)  }
@@ -166,18 +168,18 @@ void CorpoDaDeFuncao():{} {
 }
 
 void chamadaFuncao():{} {
-  (<CONST> | <VAR> | <LET>)? (<IDENTIFICADOR> <RECEBE>)? (<AWAIT>)? <IDENTIFICADOR> <L_PAREN> (listaDeParametros())? <R_PAREN>
+  (<CONST> | <VAR> | <LET>)? (<IDENTIFICADOR> <RECEBE>)? (<AWAIT>)? <IDENTIFICADOR> <L_PAREN> (listaDeParametros())? <R_PAREN> (<SEMI_COLON>)?
 }
 
 //ESTRUTURA CONDICIONAL
-void ifElse(): {} { <IF> <L_PAREN>  condicao() <R_PAREN> <L_BRACKET> blocoDeDeclaracoesIfElse() <R_BRACKET> ( <ELSEIF> <L_PAREN>  condicao() <R_PAREN> <L_BRACKET> (blocoDeDeclaracoesIfElse())* <R_BRACKET> )* ( <ELSE> <L_BRACKET> blocoDeDeclaracoesIfElse() <R_BRACKET> )? }
+void ifElse(): {} { <IF> <L_PAREN>  condicao() <R_PAREN> <L_BRACKET> blocoDeDeclaracoesIfElse() <R_BRACKET> (<SEMI_COLON>)? ( <ELSEIF> <L_PAREN>  condicao() <R_PAREN> <L_BRACKET> (blocoDeDeclaracoesIfElse())* <R_BRACKET> (<SEMI_COLON>)? )* ( <ELSE> <L_BRACKET> blocoDeDeclaracoesIfElse() <R_BRACKET> (<SEMI_COLON>)? )? }
 
 void blocoDeDeclaracoesIfElse():{} {
   (instanciarVariavel() | AtribuirVariavel() | ifElse() | output() | input() (<SEMI_COLON>)? | whileRule() | <BREAK> (<SEMI_COLON>)? | <CONTINUE> (<SEMI_COLON>)?)
 }
 
 //LACO
-void whileRule():{} { <WHILE> <L_PAREN> condicao() <R_PAREN> <L_BRACKET> (blocoDeDeclaracoesLaco())* <R_BRACKET> }
+void whileRule():{} { <WHILE> <L_PAREN> condicao() <R_PAREN> <L_BRACKET> (blocoDeDeclaracoesLaco())* <R_BRACKET> (<SEMI_COLON>)?}
 
 void blocoDeDeclaracoesLaco():{} {
   (instanciarVariavel() | AtribuirVariavel() | ifElse() | output() | input() (<SEMI_COLON>)? | whileRule() | <BREAK> (<SEMI_COLON>)? | <CONTINUE> (<SEMI_COLON>)?)
@@ -188,19 +190,19 @@ void condicao():{} {
 }
 
 //ENTRADA E SAIDA DE DADOS
-void input():{} { <INPUT> <L_PAREN> ( <STRING_LITERAL> | <IDENTIFICADOR>) <R_PAREN> }
+void input():{} { <INPUT> <L_PAREN> ( <TIPOS_BASICOS> | <IDENTIFICADOR>) <R_PAREN> (<SEMI_COLON>)?}
 
-void output():{} { <OUTPUT> <L_PAREN> ( <STRING_LITERAL> | <IDENTIFICADOR>)? <R_PAREN> }
+void output():{} { <OUTPUT> <L_PAREN> ( <TIPOS_BASICOS> | <IDENTIFICADOR>)? <R_PAREN> (<SEMI_COLON>)? }
 
 // CLASSE
 void classDeclaration():{} {
-  <CLASS> <IDENTIFICADOR> ( <EXTENDS> <IDENTIFICADOR> )? <L_BRACKET> ( classMethodDeclaration() )* <R_BRACKET>
+  <CLASS> <IDENTIFICADOR> ( <EXTENDS> <IDENTIFICADOR> )? <L_BRACKET> ( classMethodDeclaration() )* <R_BRACKET> (<SEMI_COLON>)?
 }
 
 void classMethodDeclaration():{} {
   (<STATIC>)? (<ASYNC>)? <IDENTIFICADOR> <L_PAREN> ( listaDeParametros() )? <R_PAREN> <L_BRACKET>
       (corpoFuncaoClasse())+
-  <R_BRACKET>
+  <R_BRACKET> (<SEMI_COLON>)?
 }
 
 void corpoFuncaoClasse(): {} {
@@ -213,14 +215,14 @@ void atribuirVariavelClasse(): {} {
   <THIS> <DOT> <IDENTIFICADOR> (<INCREMENTO> | <DECREMENTO> | expressaoNumericaComAtribuicao() | (<RECEBE> ((<TIPOS_BASICOS> | input()) | <IDENTIFICADOR>))) (<SEMI_COLON>)?
 }
 
-void chamadaFuncaoClasse():{} { (<CONST> | <VAR> | <LET> | <THIS> <DOT>)? (<IDENTIFICADOR> <RECEBE>)? (<AWAIT>)? <IDENTIFICADOR> <L_PAREN> (listaDeParametrosClasse())? <R_PAREN> }
+void chamadaFuncaoClasse():{} { (<CONST> | <VAR> | <LET> | <THIS> <DOT>)? (<IDENTIFICADOR> <RECEBE>)? (<AWAIT>)? <IDENTIFICADOR> <L_PAREN> (listaDeParametrosClasse())? <R_PAREN> (<SEMI_COLON>)?}
 
 void retornoFuncaoClasse():{}{
     <RETURN> (
         <TIPOS_BASICOS> (comparacao())?
         | <IDENTIFICADOR> (expressaoNumericaComAtribuicao() | comparacao())
         | <THIS> <DOT> <IDENTIFICADOR>
-    ) <SEMI_COLON>
+    ) (<SEMI_COLON>)?
 }
 
 void listaDeParametrosClasse():{} { (<THIS> <DOT>)? <IDENTIFICADOR> (<COMMA> (<THIS> <DOT>)? <IDENTIFICADOR>)* }
